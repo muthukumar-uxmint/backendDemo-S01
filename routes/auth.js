@@ -3,7 +3,7 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 var sequelize = require('../utils/db.utils');
 var jwt = require('jsonwebtoken');
-var authenticateJWT = require('../middleware/authMiddleware');
+var AuthMiddleware = require('../middleware/authMiddleware');
 
 const SECRET = 'JULY932032';
 
@@ -86,7 +86,7 @@ router.post('/login' , async(req, res, next)=>{
 
         if(compareResult){
 
-            const token = jwt.sign( { userId: user.id } , SECRET , { expiresIn : '8h' });
+            const token = jwt.sign( { userId: user.id , role: user.role } , SECRET , { expiresIn : '8h' });
 
             res.json({
                 success:true , 
@@ -107,7 +107,7 @@ router.post('/login' , async(req, res, next)=>{
 
 // AUTHORIZATION - middleware
 
-router.get('/courses' , authenticateJWT , (req ,res , next)=>{
+router.get('/courses' , AuthMiddleware.authenticateJWT , AuthMiddleware.authenticateRole , (req ,res , next)=>{
     try{
         res.json({success:true , result: req.user });
     }catch(e){
